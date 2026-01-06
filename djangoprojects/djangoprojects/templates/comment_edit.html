@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}編輯留言{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width:700px;">
+  <h2>編輯留言</h2>
+  <form method="post">
+    {% csrf_token %}
+    {% if form %}
+      {{ form.as_p }}
+    {% else %}
+      <p class="text-danger">表單未載入（請檢查 view 是否傳入 form）</p>
+    {% endif %}
+    <button class="btn btn-primary" type="submit">儲存</button>
+    {% if comment and comment.course %}
+      <a href="{% url 'course_detail' comment.course.id %}" class="btn btn-secondary">取消</a>
+    {% else %}
+      <a href="{% url 'course_list' %}" class="btn btn-secondary">取消</a>
+    {% endif %}
+  </form>
+</div>
+{% endblock %}
+

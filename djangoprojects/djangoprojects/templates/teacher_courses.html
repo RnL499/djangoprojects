@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}教師課程列表{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>您任教的課程</h2>
+  <div class="mb-3">
+    <a class="btn btn-success" href="{% url 'create_course' %}">新增課程</a>
+    <a class="btn btn-outline-secondary" href="{% url 'main' %}">回到主頁</a>
+  </div>
+  {% if courses %}
+  <ul class="list-group">
+    {% for c in courses %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong>{{ c.code }}</strong> - {{ c.name }}
+        </div>
+        <div>
+          <a class="btn btn-sm btn-primary" href="{% url 'teacher_course_students' c.id %}">學生名單與給分</a>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <div class="alert alert-info">您目前沒有任教的課程。</div>
+  {% endif %}
+  
+</div>
+{% endblock %}

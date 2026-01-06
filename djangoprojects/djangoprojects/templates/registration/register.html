@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}註冊{% endblock %}
+
+{% block content %}
+<h2>註冊</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <p class="text-muted">註冊為學生帳號；教師帳號請由管理員在後台建立。</p>
+  <button type="submit" class="btn btn-primary">註冊（學生）</button>
+</form>
+{% endblock %}
