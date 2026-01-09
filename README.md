@@ -1,7 +1,10 @@
 # 成績系統 (Minimal Django app)
 
 管理者帳號:user
+
 管理者密碼:user_@@@
+
+---
 
 快速啟動
 
@@ -109,5 +112,3 @@ python manage.py test grades
 - 登入後的導向行為使用 LOGIN_REDIRECT_URL = 'main'，main 會根據使用者身分把教師導至 teacher_courses、學生導至 student_courses、管理員保留在管理總覽。
 - 範本與 view 中的角色檢查優先檢查 Teacher 群組，並向後相容 Profile.is_teacher 標記。
 - 若有現有資料庫，更新模型後請先備份 db.sqlite3 再執行 migrate。
-
-若要我把 README 裡的「功能清單」再轉成一頁展示或增加操作影片腳本，我可以接著產生教學步驟文件。
