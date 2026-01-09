@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}學期平均 - {{ semester }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h3>{{ semester }} 學期平均</h3>
+  {% if avg is not None %}
+    <p class="lead">平均分數：<strong>{{ avg|floatformat:2 }}</strong></p>
+  {% else %}
+    <p class="text-muted">本學期尚無成績可以計算平均。</p>
+  {% endif %}
+  <a href="{% url 'student_courses' %}" class="btn btn-secondary">回到課程列表</a>
+</div>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}主頁 - 成績系統{% endblock %}
+{% block content %}
+<h1>主頁 (Main)</h1>
+<p>目前學生修課、各科分數、平均分數</p>
+
+<h2>課程列表與選課</h2>
+<div class="table-responsive mb-4">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>課程代碼</th>
+        <th>課程名稱</th>
+        <th>教師</th>
+        <th>加退選</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for course in courses %}
+        <tr>
+          <td>{{ course.code }}</td>
+          <td><a href="{% url 'course_detail' course.id %}">{{ course.name }}</a></td>
+          <td>
+            {% if course.teacher and course.teacher.user and course.teacher.user.profile and course.teacher.user.profile.is_teacher %}
+              {{ course.teacher.user.username }}
+            {% else %}
+              <span class="text-muted">未分配</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'enroll_course' %}" style="display: inline">
+              {% csrf_token %}
+              <input type="hidden" name="course_id" value="{{ course.id }}">
+              <input type="hidden" name="action" value="enroll">
+              <button type="submit" class="btn btn-sm btn-primary">加選</button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}?next={% url 'main' %}" class="btn btn-sm btn-outline-primary">請先登入</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4" class="text-center">目前沒有課程</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<hr>
+{% if user.is_staff %}
+<h2>學生成績總覽</h2>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>學生</th>
+        <th>已選課程</th>
+        <th>期中考</th>
+        <th>期末考</th>
+        <th>平均分數</th>
+        <th>加退選</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          <td>{{ row.student.username }}</td>
+          <td>
+            <ul class="list-unstyled mb-0">
+              {% for e in row.enrollments %}
+                <li>{{ e.course.code }} - {{ e.course.name }}</li>
+              {% empty %}
+                <li>未修習任何課程</li>
+              {% endfor %}
+            </ul>
+          </td>
+          <td>
+            <ul class="list-unstyled mb-0">
+              {% for e in row.enrollments %}
+                <li>{{ e.midtrem_grade|default:'-' }}</li>
+              {% endfor %}
+            </ul>
+          </td>
+          <td>
+            <ul class="list-unstyled mb-0">
+              {% for e in row.enrollments %}
+                <li>{{ e.final_grade|default:'-' }}</li>
+              {% endfor %}
+            </ul>
+          </td>
+          <td>{% if row.avg is None %}-{% else %}{{ row.avg }}{% endif %}</td>
+          <td>
+            <div class="d-flex flex-column gap-2">
+              {% for e in row.enrollments %}
+                <form method="post" action="{% url 'enroll_course' %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="course_id" value="{{ e.course.id }}">
+                  <input type="hidden" name="action" value="drop">
+                  {% if user.is_staff %}
+                    <input type="hidden" name="student_id" value="{{ row.student.id }}">
+                  {% endif %}
+                  <button type="submit" class="btn btn-sm btn-danger w-100">退選 {{ e.course.code }}</button>
+                </form>
+              {% endfor %}
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif user.is_authenticated %}
+<h2>我的成績總覽</h2>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>課程代碼</th>
+        <th>課程名稱</th>
+        <th>期中考</th>
+        <th>期末考</th>
+        <th>平均分數</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        {% if row.student == user %}
+        {% for e in row.enrollments %}
+        <tr>
+          <td>{{ e.course.code }}</td>
+          <td>{{ e.course.name }}</td>
+          <td>{{ e.midtrem_grade|default:'-' }}</td>
+          <td>{{ e.final_grade|default:'-' }}</td>
+          <td>
+            {% if e.midtrem_grade and e.final_grade %}
+              {% with total=e.midtrem_grade|add:e.final_grade %}
+                {% widthratio total 2 1 %}
+              {% endwith %}
+            {% else %}-{% endif %}
+          </td>
+          <td>
+            <form method="post" action="{% url 'enroll_course' %}">
+              {% csrf_token %}
+              <input type="hidden" name="course_id" value="{{ e.course.id }}">
+              <input type="hidden" name="student_id" value="{{ row.student.id }}">
+              <input type="hidden" name="action" value="drop">
+              <button type="submit" class="btn btn-sm btn-danger">退選</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

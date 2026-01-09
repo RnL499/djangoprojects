@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}新增教師帳號{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>新增教師帳號</h2>
+  <p class="text-muted">此功能僅限管理員使用。</p>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        
+        <div class="mb-3">
+          <label for="id_username" class="form-label">帳號</label>
+          {{ form.username }}
+          {% if form.username.errors %}
+            <div class="text-danger small">{{ form.username.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label for="id_email" class="form-label">電子郵件（選擇）</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <div class="text-danger small">{{ form.email.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label for="id_full_name" class="form-label">教師姓名</label>
+          {{ form.full_name }}
+          {% if form.full_name.errors %}
+            <div class="text-danger small">{{ form.full_name.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label for="id_password1" class="form-label">密碼</label>
+          {{ form.password1 }}
+          {% if form.password1.errors %}
+            <div class="text-danger small">{{ form.password1.errors }}</div>
+          {% endif %}
+          {% if form.password1.help_text %}
+            <small class="form-text text-muted">{{ form.password1.help_text|safe }}</small>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label for="id_password2" class="form-label">確認密碼</label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}
+            <div class="text-danger small">{{ form.password2.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-success">建立教師帳號</button>
+          <a href="{% url 'main' %}" class="btn btn-secondary">取消</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% if user.is_authenticated and user.is_staff %}
+  {# Admin-only links #}
+  <li class="nav-item"><a class="nav-link" href="{% url 'add_course' %}">新增課程</a></li>
+  <li class="nav-item"><a class="nav-link" href="/admin/">管理 (Admin)</a></li>
+  <li class="nav-item"><a class="nav-link" href="{% url 'create_teacher' %}">新增教師</a></li>
+  <li class="nav-item"><a class="nav-link" href="{% url 'teacher_courses' %}">管理員課程區</a></li>
+{% elif user.is_authenticated and user.profile and user.profile.is_teacher %}
+  {# Teacher-only links #}
+  <li class="nav-item"><a class="nav-link" href="{% url 'add_course' %}">新增課程</a></li>
+  <li class="nav-item"><a class="nav-link" href="{% url 'teacher_courses' %}">教師專區</a></li>
+{% endif %}
+
+def _is_teacher(user):
+    """Check if user is a teacher (not admin)."""
+    if not user.is_authenticated:
+        return False
+    if user.is_staff:
+        return False
+    profile = getattr(user, 'profile', None)
+    return bool(profile and profile.is_teacher)

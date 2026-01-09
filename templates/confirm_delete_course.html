@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}刪除課程 - {{ course.code }}{% endblock %}
+{% block content %}
+<div class="container mt-4" style="max-width:600px">
+  <div class="card">
+    <div class="card-header bg-danger text-white">確認刪除課程</div>
+    <div class="card-body">
+      <p>確定要刪除課程 <strong>{{ course.code }} - {{ course.name }}</strong> 嗎？此動作無法還原。</p>
+      <form method="post">
+        {% csrf_token %}
+        <button class="btn btn-danger">確定刪除</button>
+        <a class="btn btn-secondary" href="{% url 'teacher_courses' %}">取消</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
