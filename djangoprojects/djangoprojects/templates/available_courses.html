@@ -6,6 +6,35 @@
 <div class="container mt-4">
   <h2>加選課程</h2>
   
+  <!-- 搜尋課程表單 -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+      <form method="get" action="{% url 'available_courses' %}" class="row g-3">
+        <div class="col-md-6">
+          <input 
+            type="text" 
+            class="form-control" 
+            name="search" 
+            placeholder="搜尋課程代碼或課程名稱..."
+            value="{{ search_query }}"
+          >
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-primary w-100">搜尋</button>
+        </div>
+        {% if search_query %}
+        <div class="col-md-2">
+          <a href="{% url 'available_courses' %}" class="btn btn-secondary w-100">清除</a>
+        </div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  {% if search_query %}
+  <p class="mb-3 text-muted">搜尋結果：「<strong>{{ search_query }}</strong>」</p>
+  {% endif %}
+  
   {% if courses %}
   <table class="table table-striped table-hover">
     <thead class="table-dark">

@@ -313,10 +313,22 @@ def drop_course(request, enrollment_id):
 
 @login_required
 def available_courses(request):
-    """Show all courses available to enroll."""
+    """Show all courses available to enroll, with search functionality."""
     enrolled_course_ids = Enrollment.objects.filter(student=request.user).values_list('course_id', flat=True)
     available = Course.objects.exclude(id__in=enrolled_course_ids).order_by('code')
-    return render(request, 'available_courses.html', {'courses': available})
+    
+    # Handle search query
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        from django.db.models import Q
+        available = available.filter(
+            Q(name__icontains=search_query) | Q(code__icontains=search_query)
+        )
+    
+    return render(request, 'available_courses.html', {
+        'courses': available,
+        'search_query': search_query
+    })
 
 
 @login_required
