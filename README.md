@@ -1,7 +1,5 @@
 # 成績系統 (Minimal Django app)
 
-管理者帳號:Test
-管理者密碼:Test123
 管理者帳號:user
 管理者密碼:user_@@@
 
